@@ -5,25 +5,23 @@
 #include <vector>
 #include <string>
 
-using namespace std::chrono;
-
 
 class Order {
 private:
 	float price;
 	uint64_t qty;
 	uint64_t order_id;
-	time_point<system_clock> time;
+	std::chrono::time_point<std::chrono::system_clock> time;
 
 public:
-	Order(float price, uint64_t quantity, uint64_t id, time_point<system_clock> arrival_time)
+	Order(float price, uint64_t quantity, uint64_t id, std::chrono::time_point<std::chrono::system_clock> arrival_time)
 		: price(price), qty(quantity), order_id(id), time(arrival_time)
 	{}
 
 	float getPrice() const;
 	uint64_t getQuantity() const;
 	uint64_t getOrderId() const;
-	time_point<system_clock> getTime() const;
+	std::chrono::time_point<std::chrono::system_clock> getTime() const;
 	void changeQuantity(uint64_t);
 };
 
@@ -42,7 +40,7 @@ uint64_t Order::getOrderId() const {
 	return order_id;
 }
 
-time_point<system_clock> Order::getTime() const {
+std::chrono::time_point<std::chrono::system_clock> Order::getTime() const {
 
 	return time;
 }
