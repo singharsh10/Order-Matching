@@ -1,181 +1,79 @@
 #pragma once
+
 #include <chrono>
-#include <list>
-#include <iostream>
-#include <vector>
 #include <string>
 
+#include "types.h"
 
-class Order {
-private:
-	float price;
-	uint64_t qty;
-	uint64_t order_id;
-	std::chrono::time_point<std::chrono::system_clock> time;
 
-public:
-	Order(float price, uint64_t quantity, uint64_t id, std::chrono::time_point<std::chrono::system_clock> arrival_time)
-		: price(price), qty(quantity), order_id(id), time(arrival_time)
-	{}
+namespace ordermatching {
 
-	float getPrice() const;
-	uint64_t getQuantity() const;
-	uint64_t getOrderId() const;
-	std::chrono::time_point<std::chrono::system_clock> getTime() const;
-	void changeQuantity(uint64_t);
-};
+	enum Side { BUY, SELL };
 
-float Order::getPrice() const {
+	class Order {
+	private:
+		Side side;
+		Price price;
+		Quantity qty;
+		Id order_id;
+		std::chrono::time_point<std::chrono::system_clock> time;
 
-	return price;
-}
+	public:
+		inline static std::map<Id, Order> id_to_order;
 
-uint64_t Order::getQuantity() const {
+		Order(std::string order_type, Price price, Quantity quantity, Id id, std::chrono::time_point<std::chrono::system_clock> arrival_time)
+			: side(BUY), price(price), qty(quantity), order_id(id), time(arrival_time)
+		{
+			side = (order_type == "BUY") ? BUY : SELL;
 
-	return qty;
-}
-
-uint64_t Order::getOrderId() const {
-
-	return order_id;
-}
-
-std::chrono::time_point<std::chrono::system_clock> Order::getTime() const {
-
-	return time;
-}
-
-void Order::changeQuantity(uint64_t amount) {
-
-	qty = amount;
-}
-
-class Symbol {
-private:
-	std::string symbol;
-	std::list<Order> orders;
-
-public:
-	Symbol(std::string sym)
-		: symbol(sym)
-	{}
-
-	void addSellOrder(Order&);
-	void addBuyOrder(Order&);
-	void executeSellOrder(Order&);
-	void executeBuyOrder(Order&);
-	void remove_orders(std::vector<std::list<Order>::iterator>&);
-};
-
-void Symbol::addSellOrder(Order& order) {
-
-	if (orders.empty()) {
-
-		orders.push_front(order);
-		return;
-	}
-
-	for (auto it = orders.begin(); it != orders.end(); it++) {
-
-		if (it->getPrice() > order.getPrice() ||
-			it->getPrice() == order.getPrice() && it->getTime() > order.getTime()) {
-
-			orders.insert(it, order);
-			return;
+			// id_to_order[id] = *this; calls default constructor and then copy assignment operator. use the one below
+			Order::id_to_order.emplace(id, *this); // calls copy constructor only once. insert() creates a extra copy
 		}
+
+		Side getSide() const;
+		Price getPrice() const;
+		Quantity getQuantity() const;
+		Id getOrderId() const;
+		std::chrono::time_point<std::chrono::system_clock> getTime() const;
+
+		void changePrice(Price);
+		void changeQuantity(Quantity);
+		
+	};
+
+	Side Order::getSide() const {
+
+		return side;
 	}
 
-	orders.insert(orders.end(), order);
-}
+	Price Order::getPrice() const {
 
-void Symbol::addBuyOrder(Order& order) {
-
-	if (orders.empty()) {
-
-		orders.push_front(order);
-		return;
+		return price;
 	}
 
-	for (auto it = orders.begin(); it != orders.end(); it++) {
+	Quantity Order::getQuantity() const {
 
-		if (it->getPrice() < order.getPrice() ||
-			(it->getPrice() == order.getPrice() && it->getTime() > order.getTime())) {
-
-			orders.insert(it, order);
-			return;
-		}
+		return qty;
 	}
 
-	orders.insert(orders.end(), order);
-}
+	Id Order::getOrderId() const {
 
-void Symbol::executeSellOrder(Order& order) {
-
-	std::vector<std::list<Order>::iterator> orders_traded;
-	for (auto it = orders.begin(); it != orders.end(); it++) {
-
-		if (it->getPrice() >= order.getPrice()) {
-
-			int64_t qty_remaining = it->getQuantity() - order.getQuantity();
-			if (qty_remaining > 0) {
-
-				order.changeQuantity(0);
-				it->changeQuantity(qty_remaining);
-			}
-			else {
-
-				order.changeQuantity(abs(qty_remaining));
-				std::cout << "Order traded with Order ID: " << it->getOrderId() << std::endl;
-				orders_traded.push_back(it);
-			}
-
-			if (order.getQuantity() == 0) {
-
-				remove_orders(orders_traded);
-				return;
-			}
-		}
+		return order_id;
 	}
 
-	remove_orders(orders_traded);
-}
+	std::chrono::time_point<std::chrono::system_clock> Order::getTime() const {
 
-void Symbol::executeBuyOrder(Order& order) {
-
-	std::vector<std::list<Order>::iterator> orders_traded;
-	for (auto it = orders.begin(); it != orders.end(); it++) {
-
-		if (it->getPrice() <= order.getPrice()) {
-
-			int64_t qty_remaining = it->getQuantity() - order.getQuantity();
-			if (qty_remaining > 0) {
-
-				order.changeQuantity(0);
-				it->changeQuantity(qty_remaining);
-			}
-			else {
-
-				order.changeQuantity(abs(qty_remaining));
-				std::cout << "Order traded with Order ID: " << it->getOrderId() << std::endl;
-				orders_traded.push_back(it);
-			}
-
-			if (order.getQuantity() == 0) {
-
-				remove_orders(orders_traded);
-				return;
-			}
-		}
+		return time;
 	}
 
-	remove_orders(orders_traded);
-}
+	void Order::changePrice(Price new_price) {
 
-void Symbol::remove_orders(std::vector<std::list<Order>::iterator>& orders_traded) {
-
-	while (!orders_traded.empty()) {
-
-		orders.erase(orders_traded.back());
-		orders_traded.pop_back();
+		price = new_price;
 	}
-}
+
+	void Order::changeQuantity(Quantity new_qty) {
+
+		qty = new_qty;
+	}
+
+} // namespace ordermatching
