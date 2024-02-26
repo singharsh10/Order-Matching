@@ -13,17 +13,17 @@ namespace ordermatching {
 
 	class Order {
 	private:
-		Side side;
+		Id order_id;
 		Price price;
 		Quantity qty;
-		Id order_id;
+		Side side;
 		std::chrono::time_point<std::chrono::system_clock> time;
 
 	public:
 		inline static std::map<Id, Order> id_to_order;
 
-		Order(std::string order_type, Price price, Quantity quantity, Id id, std::chrono::time_point<std::chrono::system_clock> arrival_time)
-			: side(BUY), price(price), qty(quantity), order_id(id), time(arrival_time)
+		Order(std::string order_type, Id id, Price price, Quantity quantity, std::chrono::time_point<std::chrono::system_clock> arrival_time)
+			: order_id(id), price(price), qty(quantity), time(arrival_time)
 		{
 			side = (order_type == "BUY") ? BUY : SELL;
 
