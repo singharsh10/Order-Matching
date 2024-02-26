@@ -24,10 +24,11 @@ namespace ordermatching {
 		void addOrder(Order&);
 		void matchOrder(Order&);
 		void modifyOrder(Order&, Quantity, Price);
+		auto getOrders();
 	};
 
 	void OrderBook::addOrder(Order& order) {
-
+		
 		Id order_id = order.getOrderId();
 		price_bucket[order.getPrice()].emplace(order.getTime(), order);
 		id_tracker[order.getOrderId()] = price_bucket[order.getPrice()].find(order.getTime());
@@ -147,6 +148,11 @@ namespace ordermatching {
 		
 		price_bucket[order.getPrice()].emplace(order.getTime(), order);
 		id_tracker[order.getOrderId()] = price_bucket[order.getPrice()].find(order.getTime());
+	}
+
+	auto OrderBook::getOrders() {
+
+		return price_bucket;
 	}
 
 } // namespace ordermatching
