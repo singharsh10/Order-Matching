@@ -1,7 +1,6 @@
 #pragma once
 
 #include <iostream>
-#include <map>
 #include <vector>
 #include <list>
 
@@ -10,7 +9,7 @@
 
 namespace ordermatching {
 	
-	// Both sides will have their own order book for each symbol resepctively
+	// Both sides will have their own order book for each symbol respectively
 	class OrderBook {
 	private:
 		std::string symbol;
