@@ -19,15 +19,19 @@ void takeOrders() {
 		std::string symbol;
 		time_point<system_clock> curr_time = system_clock::now();
 
-		std::cin >> order_type >> price >> qty >> id >> symbol;
-		
+		std::cin >> order_type >> symbol >> id;
+
+		if (order_type == "CANCEL")	
+			price = 0, qty = 0;
+		else 
+			std::cin >> price >> qty;
+
 		/*
 			TODO
-			in case qty <= 0 or price < 0 throw error
-		 	don't construct order if it's a modify order
+			in case qty < 0 or price < 0 throw error.
 		*/
 
-		Order received_order = Order(order_type, price, qty, id, curr_time);
+		Order received_order = Order(order_type, id, price, qty, curr_time);
 
 		if (order_type == "BUY") {
 
