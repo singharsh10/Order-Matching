@@ -80,7 +80,7 @@ namespace ordermatching {
 		else {
 
 			// from lower to higher price
-			for (auto price_it = price_bucket.begin(); price_it != price_bucket.end(); price_it++) {
+			for (auto price_it = price_bucket.begin(); price_it != price_bucket.end() && (*price_it).first <= order.getPrice(); price_it++) {
 
 				auto& time_map = (*price_it).second;
 				std::vector <std::map<std::chrono::time_point<std::chrono::system_clock>, Order>::iterator> remove;
