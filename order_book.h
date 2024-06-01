@@ -2,7 +2,6 @@
 
 #include <iostream>
 #include <vector>
-#include <list>
 
 #include "order.h"
 
@@ -115,11 +114,9 @@ namespace ordermatching {
 					remove.pop_back();
 				}
 			}
-
 		}
 	}
 
-	// not changing the timestamp on modifying the order
 	void OrderBook::modifyOrder(Order& order, Quantity new_qty, Price new_price) {
 
 		if (new_qty == 0) {
@@ -138,13 +135,15 @@ namespace ordermatching {
 
 		order.changeQuantity(new_qty);
 
-		if (new_price == order.getPrice())
-			return;
+		// avoiding this for now as time needs to be updated as well
+		/*if (new_price == order.getPrice())
+			return;*/
 
 		price_bucket[order.getPrice()].erase(id_tracker[order.getOrderId()]);
 		id_tracker.erase(order.getOrderId());
 
 		order.changePrice(new_price);
+		order.changeTime();
 		
 		price_bucket[order.getPrice()].emplace(order.getTime(), order);
 		id_tracker[order.getOrderId()] = price_bucket[order.getPrice()].find(order.getTime());
