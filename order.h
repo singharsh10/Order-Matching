@@ -39,7 +39,7 @@ namespace ordermatching {
 
 		void changePrice(Price);
 		void changeQuantity(Quantity);
-		
+		void changeTime();
 	};
 
 	Side Order::getSide() const {
@@ -75,6 +75,11 @@ namespace ordermatching {
 	void Order::changeQuantity(Quantity new_qty) {
 
 		qty = new_qty;
+	}
+
+	void Order::changeTime() {
+
+		time = std::chrono::system_clock::now();
 	}
 
 } // namespace ordermatching
